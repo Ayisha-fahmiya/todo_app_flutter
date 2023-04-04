@@ -28,7 +28,7 @@ class Home extends StatelessWidget {
           return const Text("Something went wrong");
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: const CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         var docs = snapshot.data?.docs ?? [];
@@ -40,7 +40,7 @@ class Home extends StatelessWidget {
             children: [
               Container(
                 height: 200,
-                color: Colors.grey,
+                color: Colors.grey[100],
               ),
               Stack(
                 children: [
