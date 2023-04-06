@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ToDoService {
+  // final String? uid;
+  // ToDoService({this.uid});
   final CollectionReference collectionReference =
       FirebaseFirestore.instance.collection('todo');
 
@@ -17,4 +19,10 @@ class ToDoService {
   Future<void> deleteTodo(String id) {
     return collectionReference.doc(id).delete();
   }
+
+  // Future gettingUserData(String email) async {
+  //   QuerySnapshot snapshot =
+  //       await collectionReference.where("email", isEqualTo: email).get();
+  //   return snapshot;
+  // }
 }
