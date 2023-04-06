@@ -1,18 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:todo_app/screens/home.dart';
-import 'package:todo_app/screens/register_page.dart';
+import 'package:todo_app/screens/login_page.dart';
 import 'package:todo_app/services/auth_services.dart';
-import 'package:todo_app/widgets/snackBar.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+import 'home.dart';
+
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   // String email = "";
   // String password = "";
 
@@ -21,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
+    TextEditingController nameController = TextEditingController();
 
     // bool passwordShow = true;
     return Scaffold(
@@ -28,26 +29,54 @@ class _LoginPageState extends State<LoginPage> {
         child: Center(
           child: Container(
             padding: const EdgeInsets.all(24),
-            height: 400,
+            height: 500,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 const Text(
-                  "Hey, hello",
+                  "Create your account",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const Text(
-                  "Access to your account",
+                  "Register here",
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
                     color: Colors.grey,
                   ),
                 ),
                 const SizedBox(height: 18),
+                const Text(
+                  "Full Name",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+                SizedBox(
+                  height: 42,
+                  child: TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      hintText: "Hello World",
+                      hintStyle: const TextStyle(fontSize: 14),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 const Text(
                   "Email",
                   style: TextStyle(
@@ -73,11 +102,6 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    // onChanged: (value) {
-                    //   setState(() {
-                    //     email = value;
-                    //   });
-                    // },
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -94,12 +118,6 @@ class _LoginPageState extends State<LoginPage> {
                     controller: passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
-                      // suffixIcon: IconButton(
-                      //   onPressed: () {
-                      //     // passwordShow = !passwordShow;
-                      //   },
-                      //   icon: Icon(Icons.visibility),
-                      // ),
                       hintText: "12345678",
                       hintStyle: TextStyle(fontSize: 14),
                       enabledBorder: OutlineInputBorder(
@@ -113,11 +131,6 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    // onChanged: (value) {
-                    //   setState(() {
-                    //     password = value;
-                    //   });
-                    // },
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -141,19 +154,15 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () async {
                       var email = emailController.text;
                       var password = passwordController.text;
-                      try {
-                        final User? user =
-                            (await authServices.signIn(email, password)).user;
-                        if (user != null) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => Home(),
-                            ),
-                          );
-                        }
-                      } on FirebaseAuthException catch (e) {
-                        showSnackBar(context, Colors.red, e.message);
-                      }
+
+                      final User? user =
+                          (await authServices.signUp(email, password)).user;
+
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => Home(),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
@@ -162,22 +171,22 @@ class _LoginPageState extends State<LoginPage> {
                       backgroundColor: Colors.transparent,
                       elevation: 0,
                     ),
-                    child: const Text("Login"),
+                    child: const Text("Register"),
                   ),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    const Text("Don't have an account?"),
+                    const Text("Already have an account?"),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => const RegisterPage(),
+                            builder: (context) => const LoginPage(),
                           ),
                         );
                       },
-                      child: const Text("Register"),
+                      child: const Text("Login"),
                     ),
                   ],
                 ),
