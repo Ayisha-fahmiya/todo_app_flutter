@@ -1,26 +1,51 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:todo_app/constants/colors.dart';
 import 'package:todo_app/model/todo.dart';
+import 'package:todo_app/screens/login_page.dart';
 import 'package:todo_app/services/todo_services.dart';
 import 'package:todo_app/widgets/to_do_items.dart';
+import '../services/auth_services.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   Home({super.key});
 
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   // FirebaseFirestore db = FirebaseFirestore.instance;
   final ToDoService toDoService = ToDoService();
 
   // final todosList = ToDo.todoList();
-
   final _todoController = TextEditingController();
+
+  AuthServices authServices = AuthServices();
+
+  final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
+
+  File? image;
+
+  Future pickImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+      final imageTemporary = File(image.path);
+      setState(() {
+        this.image = imageTemporary;
+      });
+    } on PlatformException catch (e) {
+      return e.message;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // db.collection("todo").snapshots().listen((snapshot) {});
-    // final CollectionReference _todosRef =
-    //     FirebaseFirestore.instance.collection('todo');
-
     return StreamBuilder<QuerySnapshot>(
       stream: toDoService.todoStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -33,14 +58,166 @@ class Home extends StatelessWidget {
 
         var docs = snapshot.data?.docs ?? [];
         return Scaffold(
+          key: _key,
           resizeToAvoidBottomInset: false,
           backgroundColor: tdBGColor,
           appBar: _buldAppBar(),
-          body: Column(
+          drawer: Drawer(
+            child: Column(
+              children: [
+                const SizedBox(height: 24),
+                GestureDetector(
+                  onTap: () async {
+                    await pickImage();
+                  },
+                  child: image == null
+                      ? const CircleAvatar(
+                          radius: 70,
+                          backgroundColor: Colors.white,
+                          backgroundImage:
+                              AssetImage("assets/accountProfile.png"),
+                        )
+                      : CircleAvatar(
+                          radius: 70,
+                          backgroundColor: Colors.white,
+                          backgroundImage: FileImage(image!),
+                        ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  color: Colors.grey[200],
+                  height: 60,
+                  child: ListTile(
+                    leading: const Icon(Icons.exit_to_app),
+                    title: const Text("Log out"),
+                    onTap: () async {
+                      showDialog(
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text("Logout"),
+                            content:
+                                const Text("Are you sure you want to logout?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(
+                                  "Cancel",
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  await authServices.signOut();
+                                  // ignore: use_build_context_synchronously
+                                  Navigator.of(context).pushAndRemoveUntil(
+                                      MaterialPageRoute(
+                                        builder: (context) => const LoginPage(),
+                                      ),
+                                      (route) => false);
+                                },
+                                child: const Text(
+                                  "Logout",
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) => Container(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  height: 240,
+                  // color: Colors.black,
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 70,
+                        width: 300,
+                        child: TextField(
+                          controller: _todoController,
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(color: Colors.black),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(color: Colors.black),
+                            ),
+                          ),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          String title = _todoController.text;
+                          toDoService.addTodo(title);
+                          // _todosRef.add({
+                          //   'title': title,
+                          //   'isDone': false,
+                          // });
+
+                          Navigator.of(context).pop();
+                          _todoController.clear();
+                        },
+                        child: const Text('Submit'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            child: const Icon(Icons.add, size: 36),
+          ),
+          body: ListView(
             children: [
-              Container(
-                height: 200,
-                color: Colors.grey[100],
+              SizedBox(
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        await pickImage();
+                      },
+                      child: image == null
+                          ? const CircleAvatar(
+                              radius: 70,
+                              backgroundColor: Colors.white,
+                              backgroundImage:
+                                  AssetImage("assets/accountProfile.png"),
+                            )
+                          : CircleAvatar(
+                              radius: 70,
+                              backgroundColor: Colors.white,
+                              backgroundImage: FileImage(image!),
+                            ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "Ayisha Fahmiya",
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               Stack(
                 children: [
@@ -94,60 +271,6 @@ class Home extends StatelessWidget {
                       },
                     ),
                   ),
-                  Positioned(
-                    bottom: 24,
-                    right: 24,
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (context) => Container(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            height: 240,
-                            // color: Colors.black,
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 70,
-                                  width: 300,
-                                  child: TextField(
-                                    controller: _todoController,
-                                    decoration: InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: const BorderSide(
-                                            color: Colors.black),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: const BorderSide(
-                                            color: Colors.black),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    String title = _todoController.text;
-                                    toDoService.addTodo(title);
-                                    // _todosRef.add({
-                                    //   'title': title,
-                                    //   'isDone': false,
-                                    // });
-
-                                    Navigator.of(context).pop();
-                                    _todoController.clear();
-                                  },
-                                  child: const Text('Submit'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                      child: const Icon(Icons.add, size: 36),
-                    ),
-                  ),
                 ],
               ),
             ],
@@ -162,21 +285,15 @@ class Home extends StatelessWidget {
     return AppBar(
       backgroundColor: tdBGColor,
       elevation: 0,
-      leading: Icon(
-        Icons.menu,
-        color: tdBlack,
-        size: 30,
-      ),
-      actions: const [
-        Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: CircleAvatar(
-            backgroundImage: AssetImage(
-              'assets/WhatsApp Image 2022-11-10 at 4.56.23 PM.jpeg',
-            ),
-          ),
+      leading: IconButton(
+        onPressed: () {
+          _key.currentState?.openDrawer();
+        },
+        icon: const Icon(
+          Icons.menu,
+          color: Colors.black,
         ),
-      ],
+      ),
     );
   }
 }

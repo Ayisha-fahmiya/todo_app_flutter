@@ -101,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                       //   icon: Icon(Icons.visibility),
                       // ),
                       hintText: "12345678",
-                      hintStyle: TextStyle(fontSize: 14),
+                      hintStyle: const TextStyle(fontSize: 14),
                       enabledBorder: OutlineInputBorder(
                         borderSide: const BorderSide(color: Colors.grey),
                         borderRadius: BorderRadius.circular(8),
@@ -152,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                           );
                         }
                       } on FirebaseAuthException catch (e) {
-                        showSnackBar(context, Colors.red, e.message);
+                        showSnackBar(context, e.message);
                       }
                     },
                     style: ElevatedButton.styleFrom(

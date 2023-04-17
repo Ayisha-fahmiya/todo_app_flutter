@@ -17,7 +17,7 @@ class ToDoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 20),
       child: ListTile(
         onTap: () {
           onToDoChanged(todo.isDone ? false : true);
@@ -25,13 +25,13 @@ class ToDoItem extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        contentPadding: EdgeInsets.symmetric(
+        contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
           vertical: 5,
         ),
         tileColor: Colors.white,
         leading: Icon(
-          todo.isDone ? Icons.check_box : Icons.check_box_outline_blank,
+          todo.isDone ? Icons.check_box_rounded : Icons.check_box_outline_blank,
           color: tdBlue,
         ),
         title: Text(
@@ -42,26 +42,41 @@ class ToDoItem extends StatelessWidget {
             decoration: todo.isDone ? TextDecoration.lineThrough : null,
           ),
         ),
-        trailing: Container(
-          padding: EdgeInsets.all(0),
-          margin: EdgeInsets.symmetric(vertical: 12),
-          height: 35,
-          width: 35,
-          decoration: BoxDecoration(
-            color: tdRed,
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: IconButton(
-            onPressed: () {
-              onDeleteItem(todo.id);
-            },
-            icon: Icon(
-              Icons.delete,
-            ),
-            color: Colors.white,
-            iconSize: 18,
-          ),
+        trailing: PopupMenuButton(
+          itemBuilder: (context) {
+            return [
+              PopupMenuItem(
+                child: TextButton(
+                  child: const Text("Delete"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    onDeleteItem(todo.id);
+                  },
+                ),
+              ),
+            ];
+          },
         ),
+        // trailing: Container(
+        //   padding: const EdgeInsets.all(0),
+        //   margin: const EdgeInsets.symmetric(vertical: 12),
+        //   height: 35,
+        //   width: 35,
+        //   decoration: BoxDecoration(
+        //     color: tdRed,
+        //     borderRadius: BorderRadius.circular(5),
+        //   ),
+        //   child: IconButton(
+        //     onPressed: () {
+        //       onDeleteItem(todo.id);
+        //     },
+        //     icon: const Icon(
+        //       Icons.delete,
+        //     ),
+        //     color: Colors.white,
+        //     iconSize: 18,
+        //   ),
+        // ),
       ),
     );
   }

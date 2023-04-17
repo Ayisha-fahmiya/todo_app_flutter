@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_app/screens/login_page.dart';
 import 'package:todo_app/services/auth_services.dart';
+import 'package:todo_app/widgets/snackBar.dart';
 
 import 'home.dart';
 
@@ -155,14 +156,19 @@ class _RegisterPageState extends State<RegisterPage> {
                       var email = emailController.text;
                       var password = passwordController.text;
 
-                      final User? user =
-                          (await authServices.signUp(email, password)).user;
-
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => Home(),
-                        ),
-                      );
+                      try {
+                        final User? user =
+                            (await authServices.signUp(email, password)).user;
+                        if (user != null) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => Home(),
+                            ),
+                          );
+                        }
+                      } on FirebaseAuthException catch (e) {
+                        showSnackBar(context, e.message);
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(

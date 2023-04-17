@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:todo_app/screens/home.dart';
 import 'package:todo_app/screens/login_page.dart';
+// import 'package:todo_app/screens/login_page.dart';
 
 import 'firebase_options.dart';
 
@@ -25,8 +26,11 @@ class MyApp extends StatelessWidget {
       ),
     );
     return MaterialApp(
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+      ),
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: const LoginPage(),
     );
   }
 }
